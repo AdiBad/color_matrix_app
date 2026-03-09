@@ -1,17 +1,12 @@
-# color_matrix_app
+Note, this app does not collect user data and is purely for educational purpose and personal use.
 
-A new Flutter project.
+# Color Matrix App
 
-## Getting Started
+Visualize different color combinations on text and background!
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Features:
+- 2x2 matrix of colors for a wide diversity of color combinations
+- 2x6 table of text & background color combinations
+- Allows user input hexcode to be displayed
+- Displays any color hexcode
+- Random combination of colors can be tested

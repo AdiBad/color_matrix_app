@@ -13,9 +13,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Color map for text and background",
       theme: ThemeData(
-        fontFamily: 'Roboto', // consistent Notes-style font
+        fontFamily: 'Roboto',
       ),
       home: const ColorMatrixPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -96,17 +97,17 @@ class _ColorMatrixPageState extends State<ColorMatrixPage> {
           colors[index] = newColor;
         });
       } else {
-        // Show warning dialog for invalid input
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text("Invalid Color"),
             content: const Text(
-                "The color you entered is invalid. Please use a hex code like #RRGGBB."),
+                "Please enter a valid hex color like #RRGGBB."),
             actions: [
               TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text("OK"))
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("OK"),
+              )
             ],
           ),
         );
@@ -116,35 +117,67 @@ class _ColorMatrixPageState extends State<ColorMatrixPage> {
 
   Widget buildCell(int index) {
     Color color = colors[index];
+
     return GestureDetector(
       onTap: () => editCell(index),
       child: Container(
+        width: 120,
+        height: 80,
+        margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: color,
           borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color.withOpacity(0.9),
+              color,
+            ],
+          ),
           boxShadow: const [
-            BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(2, 2))
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 6,
+              offset: Offset(2, 3),
+            )
           ],
         ),
-        width: 120,
-        height: 120,
-        alignment: Alignment.topCenter,
-        margin: const EdgeInsets.all(8),
-        child: Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Text(
-            colorToHex(color),
-            style: TextStyle(
-              fontWeight: FontWeight.normal,
-              color: getContrastingTextColor(color),
+        child: Stack(
+          children: [
+            Center(
+              child: Text(
+                colorToHex(color),
+                style: TextStyle(
+                  color: getContrastingTextColor(color),
+                ),
+              ),
             ),
-          ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 18,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white.withOpacity(0.35),
+                      Colors.transparent,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  List<Map<String, Color>> getUniquePairs() {
+  List<Map<String, Color>> getPairs() {
     List<Map<String, Color>> pairs = [];
     for (var i = 0; i < colors.length; i++) {
       for (var j = 0; j < colors.length; j++) {
@@ -156,110 +189,123 @@ class _ColorMatrixPageState extends State<ColorMatrixPage> {
 
   @override
   Widget build(BuildContext context) {
-    final pairs = getUniquePairs(); // 12 pairs
+    final pairs = getPairs();
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Color map for text and background")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const SizedBox(height: 5),
+
+            const SizedBox(height: 30),
+
+            Container(
+              margin: const EdgeInsets.only(top: 40),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.deepPurple,
+                  width: 2,
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Text(
+                "Color map for\ntext and background",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
             const Text(
-              "You can also click a square to input color of your choice!",
+              "You can click a square to input color of your choice!",
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontWeight: FontWeight.normal,
                 fontSize: 16,
                 color: Colors.deepPurple,
               ),
-              textAlign: TextAlign.center,
             ),
+
             const SizedBox(height: 20),
 
-            // 2x2 matrix
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              buildCell(0),
-              buildCell(1),
-            ]),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              buildCell(2),
-              buildCell(3),
-            ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildCell(0),
+                buildCell(1),
+              ],
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildCell(2),
+                buildCell(3),
+              ],
+            ),
+
             const SizedBox(height: 20),
 
             ElevatedButton(
               onPressed: changeColorsRandom,
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
               child: const Text("Change Colors Randomly"),
             ),
-            const SizedBox(height: 10),
 
-            // Table header
+            const SizedBox(height: 30),
+
             const Text(
-              "Text/Background Combinations:",
+              "Text/Background Combinations",
               style: TextStyle(
-                fontWeight: FontWeight.normal,
                 fontSize: 16,
                 color: Colors.deepPurple,
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
 
-            // Leaner, rounded table
-            Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(16),
+            const SizedBox(height: 10),
+
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.deepPurple,
+                  width: 1.5,
                 ),
-                padding: const EdgeInsets.all(8),
-                child: Table(
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  columnWidths: const {0: FlexColumnWidth(), 1: FlexColumnWidth()},
-                  children: List.generate(6, (rowIndex) {
-                    final first = pairs[rowIndex * 2];
-                    final second = pairs[rowIndex * 2 + 1];
-                    return TableRow(children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        margin: const EdgeInsets.symmetric(vertical: 2),
-                        decoration: BoxDecoration(
-                          color: first['bg'],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${colorToHex(first['text']!)} on ${colorToHex(first['bg']!)}',
-                          style: TextStyle(
-                            color: first['text'],
-                            fontWeight: FontWeight.normal,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        margin: const EdgeInsets.symmetric(vertical: 2),
-                        decoration: BoxDecoration(
-                          color: second['bg'],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${colorToHex(second['text']!)} on ${colorToHex(second['bg']!)}',
-                          style: TextStyle(
-                            color: second['text'],
-                            fontWeight: FontWeight.normal,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ]);
-                  }),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.all(8),
+              child: Table(
+                border: TableBorder.all(
+                  color: Colors.grey.shade400,
                 ),
+                children: List.generate(6, (row) {
+                  final first = pairs[row * 2];
+                  final second = pairs[row * 2 + 1];
+
+                  return TableRow(children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      color: first['bg'],
+                      child: Text(
+                        '${colorToHex(first['text']!)} on ${colorToHex(first['bg']!)}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: first['text']),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      color: second['bg'],
+                      child: Text(
+                        '${colorToHex(second['text']!)} on ${colorToHex(second['bg']!)}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: second['text']),
+                      ),
+                    ),
+                  ]);
+                }),
               ),
             ),
           ],
